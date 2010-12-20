@@ -45,7 +45,6 @@ function sendDataToServer(dataString) {
 	//myRequest.open("GET", "", true);
 	//myRequest.send();
 	
-	window.localStorage.removeItem(dataString); //remove this line as only for example
 	alert('Sent to server: ' + dataString + ''); //remove this line as only for example
 }
 
@@ -87,7 +86,8 @@ function sendLocalDataToServer() {
 		dataString = localStorage.key(i);
 		
 		if (dataString) {
-			sendDataToServer(dataString);
+			sendDataToServer(localStorage.getItem(dataString));
+			window.localStorage.removeItem(dataString);
 		}
 		else { i++; }
 	} 
@@ -106,10 +106,25 @@ function notifyUserIsOffline() {
 //called when DOM has fully loaded
 function loaded() {
 
+	//update local storage count
+	var length = window.localStorage.length;
+	document.querySelector('#local-count').innerHTML = length;
+
+	//if online
 	if (navigator.onLine) {
-		sendLocalDataToServer();
+	
+		//update connection status
+		var status = document.querySelector('#status');
+		status.className = 'online';
+		status.innerHTML = 'Online';
+		
+		//if local data exists, send try post to server
+		if (length !== 0) {
+			sendLocalDataToServer();
+		}
 	}
 
+	//listen for connection changes
 	window.addEventListener('online', sendLocalDataToServer, false);
 	window.addEventListener('offline', notifyUserIsOffline, false);
 	
